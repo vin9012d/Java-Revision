@@ -20,7 +20,7 @@ public class Numbers{
         char: 16-bit Unicode character default value is '\u0000' (null character)
         boolean: Represents true or false default value is false
 
-        Each of these types has a specific size and range, which you’ll need to consider when choosing the right one for your variables. The choice of primitive type can impact both performance and memory consumption.
+Each of these types has a specific size and range, which you’ll need to consider when choosing the right one for your variables. The choice of primitive type can impact both performance and memory consumption.
  1 bit = 0 or 1
  1 Byte = 8 bits
  1 KB = 1024 Bytes
