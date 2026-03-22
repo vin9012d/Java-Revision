@@ -1,0 +1,492 @@
+========================================================
+  JAVA OOP & JVM INTERNALS - QUICK REVISION NOTES
+========================================================
+
+────────────────────────────────────────────────────────
+1. JVM MEMORY AREAS (ONLY 3 MATTER)
+────────────────────────────────────────────────────────
+
+METHOD AREA (Metaspace - Java 8+)
+  - Class metadata & structure
+  - Static variable REFERENCES
+  - All method bytecode (static + non-static)
+  - NOT garbage collected (persists until class unload)
+
+HEAP
+  - Objects (new keyword)
+  - Instance variables (inside objects)
+  - String Pool
+  - Garbage collected
+
+STACK
+  - Method call frames
+  - Local variables
+  - Destroyed after method ends
+
+EXAMPLE - Where things live:
+
+  class Example {
+      static String city = "Pune";   // reference → Method Area, "Pune" → Heap (String Pool)
+      String name = "Vinod";         // reference → Heap (inside object), "Vinod" → Heap (String Pool)
+
+      void test() {
+          int x = 10;               // x → Stack, destroyed when test() ends
+      }
+  }
+
+
+────────────────────────────────────────────────────────
+2. CLASS LOADING - LAZY vs EAGER
+────────────────────────────────────────────────────────
+
+DEFAULT = LAZY LOADING
+  - Classes loaded only when first used
+  - Unused classes are NEVER loaded
+  - Saves memory, faster startup
+
+EXAMPLE:
+
+  class A {
+      static { System.out.println("A loaded"); }
+  }
+  class B {
+      static { System.out.println("B loaded"); }
+  }
+  public class Main {
+      public static void main(String[] args) {
+          new A();
+      }
+  }
+  // Output: A loaded
+  // B is NEVER loaded because it's never used
+
+CLASS IS LOADED WHEN:
+  - new A()
+  - A.staticMethod()
+  - A.staticVariable
+  - Class.forName("A")       ← this is EAGER loading (forced)
+  - Subclass is loaded (parent loads first)
+
+NOT LOADED BY:
+  - Just importing
+  - Declaring reference: A a;
+  - Null reference: A a = null;
+
+Rule: Class loaded → only ONCE → when first used
+
+
+────────────────────────────────────────────────────────
+3. STATIC vs NON-STATIC
+────────────────────────────────────────────────────────
+
+                  STATIC              NON-STATIC
+Belongs to:       Class               Object
+Copies:           1 per class         1 per object
+Variable stored:  Method Area         Heap (inside object)
+Method code:      Method Area         Method Area
+Access:           ClassName.var       obj.var / this.var
+Lifetime:         Class lifetime      Object lifetime
+GC:               No (until unload)   Yes
+this keyword:     NOT available       Available
+
+EXAMPLE - Static method can't access instance vars:
+
+  class Test {
+      int count = 0;                    // instance variable
+      static int staticCount = 0;       // static variable
+
+      static void increment() {
+          // count++;                    // ❌ ERROR: non-static field from static context
+          staticCount++;                 // ✅ OK
+      }
+
+      void instanceMethod() {
+          count++;                       // ✅ OK (has 'this')
+          staticCount++;                 // ✅ OK (instance can access static)
+      }
+  }
+
+WORKAROUND - Pass object explicitly:
+
+  static void increment(Test obj) {
+      obj.count++;                       // ✅ OK
+  }
+
+
+────────────────────────────────────────────────────────
+4. STATIC BLOCKS
+────────────────────────────────────────────────────────
+
+WHAT: Code block that runs when class is loaded
+WHEN: Before any objects created, before any method calls
+HOW MANY TIMES: Exactly ONCE per class
+
+EXECUTION ORDER:
+  1. Static variables get DEFAULT values (0, null, false)
+  2. Static blocks execute in order they appear
+  3. Class ready for use
+
+EXAMPLE - Multiple static blocks:
+
+  class MultiBlock {
+      static int value = 0;
+
+      static {
+          System.out.println("Block 1 - value: " + value);  // 0
+          value = 10;
+      }
+      static {
+          System.out.println("Block 2 - value: " + value);  // 10
+          value = 20;
+      }
+  }
+  // Output when class loads:
+  // Block 1 - value: 0
+  // Block 2 - value: 10
+  // Final value: 20
+
+EXAMPLE - Static block accessing instance var (ERROR):
+
+  class Example {
+      int a = 5;
+      static {
+          // System.out.println(a);        // ❌ ERROR: non-static from static context
+          Example obj = new Example();
+          System.out.println(obj.a);       // ✅ OK: create object first
+      }
+  }
+
+EXAMPLE - Complex initialization use case:
+
+  class DatabaseConfig {
+      static Map<String, String> config;
+      static {
+          config = new HashMap<>();
+          config.put("url", "jdbc:mysql://localhost:3306/mydb");
+          config.put("user", "root");
+          // Reference → Method Area, HashMap object → Heap
+      }
+  }
+
+EXAMPLE - Static block exception = class DEAD:
+
+  class FailingClass {
+      static {
+          int x = 10 / 0;  // ArithmeticException
+      }
+  }
+  // Any access → ExceptionInInitializerError
+  // Class is UNUSABLE forever, cannot recover
+
+KEY RULES:
+  - Cannot use this or super
+  - Cannot throw checked exceptions (must handle them)
+  - Can only throw unchecked or wrap in ExceptionInInitializerError
+
+
+────────────────────────────────────────────────────────
+5. STATIC BLOCK vs INSTANCE INIT BLOCK vs CONSTRUCTOR
+────────────────────────────────────────────────────────
+
+  static { }     → Runs ONCE at class load
+  { }            → Runs EVERY object creation, BEFORE constructor
+  Constructor()  → Runs EVERY object creation, AFTER instance init block
+
+EXAMPLE:
+
+  class InitOrder {
+      static { System.out.println("1. Static block"); }
+      { System.out.println("2. Instance init block"); }
+      InitOrder() { System.out.println("3. Constructor"); }
+
+      public static void main(String[] args) {
+          System.out.println("=== First Object ===");
+          new InitOrder();
+          System.out.println("=== Second Object ===");
+          new InitOrder();
+      }
+  }
+
+  // Output:
+  // 1. Static block              ← ONCE at class load
+  // === First Object ===
+  // 2. Instance init block       ← for obj1
+  // 3. Constructor               ← for obj1
+  // === Second Object ===
+  // 2. Instance init block       ← for obj2
+  // 3. Constructor               ← for obj2
+
+
+────────────────────────────────────────────────────────
+6. STATIC IN INHERITANCE
+────────────────────────────────────────────────────────
+
+STATIC BLOCK EXECUTION ORDER (always parent → child):
+
+EXAMPLE:
+
+  class Parent {
+      static { System.out.println("Parent static block"); }
+  }
+  class Child extends Parent {
+      static { System.out.println("Child static block"); }
+  }
+  class GrandChild extends Child {
+      static { System.out.println("GrandChild static block"); }
+  }
+
+  // Accessing GrandChild triggers:
+  // Parent static block
+  // Child static block
+  // GrandChild static block
+
+─── STATIC VARIABLES IN INHERITANCE ───
+
+SCENARIO 1: Child does NOT declare same static var
+  → Child.var and Parent.var = SAME memory location
+
+  class Parent { static int value = 100; }
+  class Child extends Parent { /* no value declared */ }
+
+  Parent.value = 500;
+  System.out.println(Child.value);   // 500 (same variable!)
+  Child.value = 700;
+  System.out.println(Parent.value);  // 700 (same variable!)
+
+SCENARIO 2: Child declares its own static var
+  → SEPARATE memory locations (HIDING, not overriding)
+
+  class Parent { static int value = 100; }
+  class Child extends Parent { static int value = 200; }
+
+  Parent.value = 500;
+  System.out.println(Parent.value);  // 500
+  System.out.println(Child.value);   // 200 (unchanged! separate var)
+
+SCENARIO 3: Static blocks modifying shared var
+
+  class Parent {
+      static int value;
+      static { value = 100; }
+  }
+  class Child extends Parent {
+      static { value = 200; }       // overwrites Parent's value
+  }
+
+  new Child();
+  System.out.println(Parent.value);  // 200 (last assignment wins)
+  System.out.println(Child.value);   // 200 (same variable)
+
+
+─── STATIC METHODS IN INHERITANCE (HIDING, NOT OVERRIDING) ───
+
+CRITICAL EXAMPLE:
+
+  class Parent {
+      static void display() { System.out.println("Parent static"); }
+  }
+  class Child extends Parent {
+      static void display() { System.out.println("Child static"); }
+  }
+
+  Parent p = new Parent();
+  Child c = new Child();
+  Parent ref = new Child();    // ref type = Parent, object type = Child
+
+  p.display();     // Parent static
+  c.display();     // Child static
+  ref.display();   // Parent static  ← resolved by REFERENCE TYPE, not object!
+
+CONTRAST WITH INSTANCE METHODS (true polymorphism):
+
+  class Parent {
+      void display() { System.out.println("Parent instance"); }
+  }
+  class Child extends Parent {
+      void display() { System.out.println("Child instance"); }
+  }
+
+  Parent ref = new Child();
+  ref.display();   // Child instance  ← resolved by OBJECT TYPE at runtime!
+
+WHY?
+  Static  → compile-time binding → reference type decides → NO polymorphism
+  Instance → runtime binding → actual object type decides → YES polymorphism
+
+
+────────────────────────────────────────────────────────
+7. COMPLETE INITIALIZATION ORDER WITH INHERITANCE
+────────────────────────────────────────────────────────
+
+EXAMPLE:
+
+  class Parent {
+      static int ps = print("Parent static var");
+      int pi = print("Parent instance var");
+      static { System.out.println("Parent static block"); }
+      { System.out.println("Parent instance init block"); }
+      Parent() { System.out.println("Parent constructor"); }
+      static int print(String s) { System.out.println(s); return 1; }
+  }
+  class Child extends Parent {
+      static int cs = print("Child static var");
+      int ci = print("Child instance var");
+      static { System.out.println("Child static block"); }
+      { System.out.println("Child instance init block"); }
+      Child() { System.out.println("Child constructor"); }
+  }
+
+  // new Child() output:
+  // 1.  Parent static var             ← class load phase
+  // 2.  Parent static block
+  // 3.  Child static var
+  // 4.  Child static block
+  // --- class loading done (steps 1-4 happen ONCE) ---
+  // 5.  Parent instance var           ← object creation phase
+  // 6.  Parent instance init block
+  // 7.  Parent constructor
+  // 8.  Child instance var
+  // 9.  Child instance init block
+  // 10. Child constructor
+  // --- object ready (steps 5-10 happen EVERY object creation) ---
+
+
+────────────────────────────────────────────────────────
+8. MEMORY EXAMPLE - STATIC COUNTER WITH INHERITANCE
+────────────────────────────────────────────────────────
+
+  class Animal {
+      static int totalAnimals = 0;
+      static { totalAnimals = 1000; }
+      Animal() { totalAnimals++; }
+  }
+  class Dog extends Animal {
+      static int totalDogs = 0;
+      Dog() { super(); totalDogs++; }
+  }
+
+  Dog d1 = new Dog();
+  // Animal.totalAnimals = 1001, Dog.totalDogs = 1
+  Dog d2 = new Dog();
+  // Animal.totalAnimals = 1002, Dog.totalDogs = 2
+
+  Memory:
+  Method Area: Animal.totalAnimals=1002, Dog.totalDogs=2  (one copy each)
+  Heap: Dog#1, Dog#2  (two separate objects)
+  Stack: d1 → Dog#1, d2 → Dog#2
+
+  KEY: 5 static vars + 10000 objects = ONLY 5 copies of static vars
+
+
+────────────────────────────────────────────────────────
+9. DEFAULT VALUES TABLE
+────────────────────────────────────────────────────────
+
+  int/long/byte/short  →  0
+  float/double         →  0.0
+  boolean              →  false
+  char                 →  '\u0000'
+  Object/String        →  null
+  Arrays               →  null
+
+
+────────────────────────────────────────────────────────
+10. SINGLETON PATTERNS (THREAD-SAFE)
+────────────────────────────────────────────────────────
+
+❌ NOT THREAD-SAFE (naive):
+
+  class Singleton {
+      private static Singleton instance;
+      public static Singleton getInstance() {
+          if (instance == null)           // race condition here!
+              instance = new Singleton();
+          return instance;
+      }
+  }
+
+✅ DOUBLE-CHECKED LOCKING (best for interviews):
+
+  class Singleton {
+      private static volatile Singleton instance;
+      public static Singleton getInstance() {
+          if (instance == null) {                    // 1st check (no lock)
+              synchronized (Singleton.class) {
+                  if (instance == null)              // 2nd check (with lock)
+                      instance = new Singleton();
+              }
+          }
+          return instance;
+      }
+  }
+
+✅ STATIC BLOCK (thread-safe, handles exceptions):
+
+  class Singleton {
+      private static Singleton instance;
+      static {
+          try { instance = new Singleton(); }
+          catch (Exception e) { throw new RuntimeException(e); }
+      }
+      public static Singleton getInstance() { return instance; }
+  }
+
+✅ ENUM SINGLETON (safest - no reflection/serialization issues):
+
+  enum Singleton { INSTANCE; }
+
+✅ LAZY HOLDER PATTERN:
+
+  class Service {
+      private static class Holder {
+          static final Service INSTANCE = new Service();
+      }
+      public static Service getInstance() {
+          return Holder.INSTANCE;  // inner class loads on first call only
+      }
+  }
+
+
+────────────────────────────────────────────────────────
+11. HANDLING 1000 THREADS
+────────────────────────────────────────────────────────
+
+❌ Do NOT create 1000 raw threads
+✅ Use ExecutorService:
+
+  ExecutorService executor = Executors.newFixedThreadPool(10);
+  for (int i = 0; i < 1000; i++) {
+      executor.submit(() -> { /* task */ });
+  }
+  executor.shutdown();
+
+Best combo: ExecutorService + Enum/DCL Singleton
+
+
+────────────────────────────────────────────────────────
+12. INTERVIEW ONE-LINERS
+────────────────────────────────────────────────────────
+
+- Java uses lazy class loading by default.
+- Unused classes are never loaded by the JVM.
+- Eager loading forced via Class.forName().
+- If class A extends B, loading A loads B first.
+- Static vars → Method Area, Instance vars → Heap, Local vars → Stack.
+- Method bytecode always in Method Area (static or not).
+- Static methods: HIDDEN not overridden, compile-time binding, no polymorphism.
+- Instance methods: OVERRIDDEN, runtime binding, yes polymorphism.
+- Static methods can't access instance vars (no this).
+- Instance methods CAN access static members.
+- Static blocks run ONCE at class load; instance init blocks run EVERY object.
+- Static block exception → ExceptionInInitializerError → class dead.
+- 5 static vars + 10000 objects = only 5 copies of static vars.
+- Static vars not GC'd during runtime, freed only at class unload.
+- If child doesn't redeclare static var → same memory as parent (alias).
+- If child redeclares static var → separate memory (hiding).
+- Use ExecutorService for threads, Enum Singleton for thread safety.
+- If you can explain where static reference vs object is stored,
+  you're above 80% of candidates.
+
+========================================================
+  END OF REVISION NOTES
+========================================================
