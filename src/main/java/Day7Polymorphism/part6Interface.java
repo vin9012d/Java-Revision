@@ -2,7 +2,7 @@ package main.java.Day7Polymorphism;
 
 public class part6Interface {
 
-    // IN java inteface can have following methods
+    // In java interface can have following methods
     // private
     // default no access modifier
 
@@ -11,7 +11,7 @@ public class part6Interface {
 
     // in abstract class we dont have a method with default keyword
 
-    // in interface if there is not access modifier for the method then java compiler makes it public abstract before the method;
+    // in interface if there is no access modifier for the method then java compiler makes it public abstract before the method;
     //and for variable it adds public static final
     /*
     ) One interface can extend how many interfaces?
@@ -135,6 +135,8 @@ Class is NOT forced to override it
 Can be overridden
 Called using object
 Used to add new methods without breaking old code
+
+
 Static Method in Interface
 Definition
 
@@ -153,10 +155,10 @@ Called using interface name
 Used for utility/helper methods
 Quick Comparison Table
 Feature	Default Method	Static Method
-Has body	Yes	Yes
-Must override	No	No
-Can override	Yes	No
-Inherited by class	Yes	No
+Has body	        Yes	             Yes
+Must override	    No	          No
+Can override	    Yes            No
+Inherited by class	Yes 	    No
 How to call	object	InterfaceName.method()
      */
 

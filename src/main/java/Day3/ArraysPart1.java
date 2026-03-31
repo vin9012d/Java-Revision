@@ -27,7 +27,7 @@ public class ArraysPart1 {
          intArray[0] =5;
 
 
-        // interate through the array
+        // iterate through the array
 
         for(int i=0;i<intArray.length;i++){
             System.out.println("Simple for loop "+intArray[i]);

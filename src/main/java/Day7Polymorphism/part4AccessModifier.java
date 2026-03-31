@@ -3,7 +3,7 @@ package main.java.Day7Polymorphism;
 public class part4AccessModifier {
     /*
     Access Level Table
-    | Access Modifier | Same Class | Same Package | Subclass (other package) | Other Package (non-subclass) |
+| Access Modifier | Same Class | Same Package | Subclass (other package) | Other Package (non-subclass) |
 | --------------- | ---------- | ------------ | ------------------------ | ---------------------------- |
 | **public**      | YES        | YES          | YES                      | YES                          |
 | **protected**   | YES        | YES          | YES                      | NO                           |

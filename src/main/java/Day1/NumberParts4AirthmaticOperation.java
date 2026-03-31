@@ -100,7 +100,7 @@ public class NumberParts4AirthmaticOperation {
 
         // 3 / 2 = 1.5
         // 1.5 = 1 + 1/2
-        // 1/2 = 0.1 in binary → exact
+        // 1/2 = 0.5 in binary → exact
         System.out.println(d7 / d8); // 1.5
 
 

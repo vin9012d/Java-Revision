@@ -354,7 +354,6 @@ Reason:
 toString() creates a new String object in Heap.
 
 Let's understand how StringBuilder works
-    Let's understand how StringBuilder works
 
 1. StringBuilder sb = new StringBuilder("Java");
 

@@ -26,9 +26,9 @@ public class NumbersPart3AirthmaticOperation {
 
         int i1 = Integer.MAX_VALUE;
         int i2 = Integer.MAX_VALUE;
-        System.out.println("i1 "+i1 +" i2 "+i2);
+        System.out.println("i1  Integer.MAX_VALUE "+i1 +" i2 Integer.MAX_VALUE "+i2);
         int i3 = i1+i2; // cycle (Overflow) concept will be applied
-        System.out.println("i1 "+i1 +" i2 "+i2 +" = "+i3);
+        System.out.println("i1 Integer.MAX_VALUE "+i1 +" i2 Integer.MAX_VALUE"+i2 +" = "+i3);
 
 
         long l1 = 1000L;

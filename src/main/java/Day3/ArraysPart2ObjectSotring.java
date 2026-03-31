@@ -121,7 +121,7 @@ public class ArraysPart2ObjectSotring {
         // Method 3: Name ASC → Roll DESC (mix directions)
         Arrays.sort(students,
                 Comparator.comparing((Student s) -> s.name)
-                        .thenComparingInt(s -> -s.rollNo)  // negate for desc
+                        .thenComparingInt(s -> -s.rollNo)  // negative for desc
         );
         // or safer:
         Arrays.sort(students,

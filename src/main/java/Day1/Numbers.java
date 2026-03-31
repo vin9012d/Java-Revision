@@ -41,7 +41,7 @@ We have three integer types: byte, short, int, and long. Each has its own size a
 
 byte: Ranges from -128 to 127
 short: Ranges from -32,768 to 32,767
-int: Ranges from -2,147,483,648 to 2,147,483,647
+int: Ranges from -2,147,483,648 to 2,147,483,647 // 200 cr
 long: Ranges from -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
 
 
