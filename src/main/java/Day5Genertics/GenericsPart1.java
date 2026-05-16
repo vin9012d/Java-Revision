@@ -12,7 +12,7 @@ public class GenericsPart1 {
     Box box = new Box();
     box.setItem(1);
     Integer num =
-        (Integer) box.getItem(); // we had to explicitly typecase here , but we can solve this using
+        (Integer) box.getItem(); // we had to explicitly typecast here , but we can solve this using
     // generics
     GenericBox<Integer> gbox = new GenericBox<>();
     gbox.setItem(1);
@@ -47,7 +47,7 @@ public class GenericsPart1 {
     }
   }
 
-  // This convess Pair class can have 2 generic variables
+  // This conveys Pair class can have 2 generic variables
   public class Pair<K, V> {
     private K key;
     private V value;

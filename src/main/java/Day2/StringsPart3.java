@@ -4,6 +4,13 @@ public class StringsPart3 {
     // All important methods of String
     // length() to get the size of the string
     public static void main(String[] args) {
+
+        StringBuilder sb7 = new StringBuilder("vinod");
+        StringBuilder sb8 = new StringBuilder("vinod");
+    System.out.println(sb7 == sb8); // false
+        System.out.println(sb7.equals(sb8)); // false StringBuilder does not override equals() from Object.
+    System.out.println(sb7.compareTo(sb8)); // 0 StringBuilder implements Comparable<StringBuilder>
+                                           // compareTo() compares the contents lexicographically.
         String s1 = "vinod";
         System.out.println("Size of the string " + s1 + " is : " + s1.length()); // Size of the string vinod is : 5
 

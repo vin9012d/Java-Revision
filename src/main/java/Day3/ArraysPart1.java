@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 public class ArraysPart1 {
 
     public static void main (String[] args){
-         // no of ways to defined the array
+         // no of ways to defineds the array
         // 1 using new key work
         int[] intArray = new int[10]; // intilal size is compoulsary and fixed
 
@@ -70,6 +70,12 @@ public class ArraysPart1 {
         Arrays.fill(filled, 1, 3, 99);                        // fill index 1 to 2 with 99
 
         // --- copyOf & copyOfRange ---
+
+        /*
+ Arrays.copyOf() → new array object created (different reference)
+For primitives → behaves like deep copy
+For objects → shallow copy (only references copied)
+         */
         int[] copy = Arrays.copyOf(intArary1, 3);              // [1, 2, 3] — first 3 elements
         int[] copyBigger = Arrays.copyOf(intArary1, 8);        // [1,2,3,4,5,0,0,0] — pads with 0
         int[] rangeCopy = Arrays.copyOfRange(intArary1, 1, 4); // [2, 3, 4] — from index 1 to 3
@@ -85,13 +91,16 @@ public class ArraysPart1 {
         int[] sortMe = {5, 3, 1, 4, 2};
         Arrays.sort(sortMe);                                   // [1, 2, 3, 4, 5]
 
+
         System.out.println(sortMe); // print just address
         System.out.println(sortMe.toString()); // print just address
         System.out.println(Arrays.toString(sortMe)); // [1, 2, 3, 4, 5]
 
+
         // Partial sort
         int[] partial = {5, 3, 1, 4, 2};
         Arrays.sort(partial, 1, 4);
+
 
 
         Integer[] descArr = {5, 3, 1, 4, 2};
