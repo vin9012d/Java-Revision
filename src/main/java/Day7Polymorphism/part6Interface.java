@@ -160,6 +160,9 @@ Must override	    No	          No
 Can override	    Yes            No
 Inherited by class	Yes 	    No
 How to call	object	InterfaceName.method()
+
+default methods → inherited by implementing classes
+static methods → belong only to interface itself
      */
 
 }

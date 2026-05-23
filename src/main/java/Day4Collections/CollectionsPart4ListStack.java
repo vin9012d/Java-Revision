@@ -13,6 +13,7 @@ public class CollectionsPart4ListStack {
     stack.push(20); // [10, 20]
     stack.push(30); // [10, 20, 30]
 
+
     // 2. pop — remove from top, throws EmptyStackException if empty
     int top = stack.pop(); // 30, stack → [10, 20]
 
@@ -37,4 +38,38 @@ public class CollectionsPart4ListStack {
     // 8. clear — remove everything
     stack.clear();
   }
+
+  /*
+  Then why not use Stack?
+
+Because it exposes too many unwanted operations.
+
+You can do:
+
+stack.insertElementAt(99, 0);
+stack.remove(1);
+stack.addFirst(77);
+
+Now it no longer behaves like a strict stack.
+
+Modern recommendation
+
+Instead of Stack, Java recommends:
+
+Deque<Integer> stack = new ArrayDeque<>();
+
+| Feature                | Stack                  | ArrayDeque               |
+| ---------------------- | ---------------------- | ------------------------ |
+| Legacy                 | Yes                    | No                       |
+| Internally             | Vector (dynamic array) | Resizable circular array |
+| Thread-safe            | Yes (synchronized)     | No                       |
+| Allows list operations | Yes                    | No                       |
+| Recommended today      | Rarely                 | Yes                      |
+
+
+
+ArrayDeque only supports efficient operations at the first and last.
+
+It does NOT support adding/removing at middle like ArrayList.
+   */
 }

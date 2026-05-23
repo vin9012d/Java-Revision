@@ -3,6 +3,9 @@ package main.java.Day1;
 public class NumbersPart3AirthmaticOperation {
 
     public static void main (String[] args){
+        int x = Integer.MAX_VALUE;
+        int y = x+1;
+    System.out.println(y);
 
         // Rule 1: 1️⃣ Binary Numeric Promotion (Main Rule)
         //

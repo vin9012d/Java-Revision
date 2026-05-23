@@ -34,6 +34,11 @@ public class GenericsPart1 {
   /*
   In this Box class, we define a type parameter T. This enables the Box to hold any type of object,
    whether it's a String, an Integer, or any custom object. When you create an instance of Box, you specify the type
+
+   Advantage of Java Generics:
+   1. Type-safety : We can holy only a single type of objects in generics. It doesn't allow to store other objects
+   2. Type casting is not required : There is no need to downcost to object.
+   3. Compile-Time Checkin2g : It is checked at compile time so problem will not occur at runtime. The good programming strategy says it is fat better to handle the problem at compile time than runtime.
    */
   public static class GenericBox<T> {
     private T item;

@@ -16,7 +16,7 @@ public class GenericsPart2 {
 
   public static <T extends Number & Comparable<T>> void compareNumbers(T a, T b) {
     if (a.compareTo(b) > 0) {
-      System.out.println(a + " is greater than " + b);
+      System.out.println(a + " is[, greater than " + b);
     } else if (a.compareTo(b) < 0) {
       System.out.println(a + " is less than " + b);
     } else {

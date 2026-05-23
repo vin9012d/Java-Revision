@@ -52,7 +52,7 @@ So "vinod" gets assigned at runtime when the object is created ✔️
         // Step 4: One more correction in your code ⚠️
         //Your main method should be:
         /*
-        public static void main(String[] args) {
+  public static void main(String[] args) {
     part1 obj = new part1();
 }
 Only then the object will be created and "vinod" will be assigned.
